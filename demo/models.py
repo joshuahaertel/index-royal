@@ -15,6 +15,7 @@ class Demo(models.Model):
     current_batch = models.PositiveSmallIntegerField(default=0)
     current_entry = models.PositiveSmallIntegerField(default=0)
     current_field = models.PositiveSmallIntegerField(default=0)
+    competing = models.CharField(default=False)
 
     def __init__(self, *args, batches=None, **kwargs):
         super().__init__(*args, **kwargs)
