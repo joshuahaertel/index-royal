@@ -1,30 +1,30 @@
 from django.urls import path, include
 
 from demo.views import (
-    CreateDemoView, DemoView, DemoAdminView, DemoStateView, BatchView,
-    EntryView, FieldView, TeamsView, TeamView, PlayersView, PlayerView,
-    JoinView,
+    CreateDemoView, DemoView, DemoAdminView, JoinView,
 )
 
 demo_urlpatterns = [
-    path('', DemoView.as_view(), name='demo'),
-    path('admin', DemoAdminView.as_view(), name='admin'),
+    path('', DemoView.as_view, name='demo'),
+    path('admin', DemoAdminView.as_view, name='admin'),
 
-    path('state', DemoStateView().as_view(), name='state'),
-    path('batch', BatchView().as_view(), name='batch'),
-    path('entry', EntryView().as_view(), name='entry'),
-    path('field', FieldView().as_view(), name='field'),
+    # path('state', DemoStateView().as_view(), name='state'),
+    # path('batch', BatchView().as_view(), name='batch'),
+    # path('entry', EntryView().as_view(), name='entry'),
+    # path('field', FieldView().as_view(), name='field'),
+    #
+    # path('teams', TeamsView().as_view(), name='teams'),
+    # path('teams/<uuid:team_pk>', TeamView().as_view(), name='team'),
+    #
+    # path('players', PlayersView().as_view(), name='players'),
+    # path('players/<uuid:player_pk>', PlayerView().as_view(), name='player'),
 
-    path('teams', TeamsView().as_view(), name='teams'),
-    path('teams/<uuid:team_pk>', TeamView().as_view(), name='team'),
-
-    path('players', PlayersView().as_view(), name='players'),
-    path('players/<uuid:player_pk>', PlayerView().as_view(), name='player'),
-
-    path('join', JoinView().as_view(), name='join'),
+    path('join', JoinView.as_view(), name='join'),
 ]
 
 urlpatterns = [
     path('create', CreateDemoView.as_view(), name='create'),
-    path('<uuid:pk>', include(demo_urlpatterns, namespace='demo'))
+    path('<uuid:pk>', include(demo_urlpatterns)),
 ]
+
+app_name='demos'
