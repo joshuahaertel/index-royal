@@ -1,13 +1,13 @@
 from django.urls import path, include
 
 from demo.views import (
-    CreateDemoView, DemoView, DemoAdminView, JoinView,
+    CreateDemoView, DemoPlayerView, DemoAdminView, JoinView,
 )
 
 app_name = 'demos'
 
 demo_urlpatterns = [
-    path('', DemoView.as_view, name='demo'),
+    path('players/<uuid:player_pk>', DemoPlayerView.as_view(), name='demo'),
     path('admin', DemoAdminView.as_view(), name='admin'),
 
     # path('state', DemoStateView().as_view(), name='state'),

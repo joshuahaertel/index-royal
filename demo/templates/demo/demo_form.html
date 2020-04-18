@@ -8,11 +8,11 @@
 
 <form action="{% url 'demos:create' %}" method="post">
     {% csrf_token %}
-    <label>
-        Are you playing as well?
-        <input type="checkbox" name="playing">
-    </label>
-    <br>
+{#    <label>#}
+{#        Are you playing as well?#}
+{#        <input type="checkbox" name="playing">#}
+{#    </label>#}
+{#    <br>#}
     <input type="submit" value="Create Game">
 </form>
 

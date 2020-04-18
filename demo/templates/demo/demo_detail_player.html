@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script>
+    var currentImage = "img-0";
+
+    function setImage(mainImage) {
+        if (mainImage === currentImage) {
+            return
+        }
+        document.getElementById(mainImage).hidden = false;
+        document.getElementById(currentImage).hidden = true;
+        currentImage = mainImage;
+    }
+</script>
+<div id="waiting" hidden>
+    Waiting for administrator to start the game
+</div>
+
+<div id="playing">
+    <div id="images">
+        {% load static %}
+        {% for image in demo.current_images %}
+            <img src="{% static image %}" {% if forloop.counter0 %}hidden{%  endif %} id="img-{{ forloop.counter0 }}">
+        {% endfor %}
+    </div>
+
+    <div id="thumbnails">
+        {% for image in demo.current_images %}
+            <img src="{% static image %}" width="100" onclick="setImage('img-{{ forloop.counter0 }}')">
+        {% endfor %}
+    </div>
+
+    <div id="scores">
+        My score: <span id="my-score">{{ player.points }}</span>
+        {% for team in demo.team_set.all %}
+            Team {{ team.name }} {{ team.points }}
+        {% endfor %}
+    </div>
+
+    <div id="indexing">
+        <form>
+            <label id="indexing-label">
+                {{ demo.current_label }}
+                <input type="text">
+            </label>
+        </form>
+        <input type="submit" value="Submit">
+    </div>
+</div>
+
+<div id="over" hidden>
+    Game over
+</div>
+</body>
+</html>
