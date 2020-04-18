@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<form action="{% url 'demos:create' %}" method="post">
+    {% csrf_token %}
+    <label>
+        Are you playing as well?
+        <input type="checkbox" name="playing">
+    </label>
+    <br>
+    <input type="submit" value="Create Game">
+</form>
+
+</body>
+</html>

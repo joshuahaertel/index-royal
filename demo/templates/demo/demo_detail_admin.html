@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{{ demo }}
+<br>
+Join URL: {{ request.get_host }}/demos/{{ demo.pk }}/join
+<br>
+Batches: {{ demo.batches }}
+<br>
+Current Batch: {{ demo.current_batch }}
+<br>
+Current Entry: {{ demo.current_entry }}
+<br>
+Current Field: {{ demo.current_field }}
+<br>
+Competing: {{ demo.competing }}
+<br>
+All Players: {{ demo.player_set.all }}
+<br>
+All Teams: {{ demo.team_set.all }}
+
+</body>
+</html>

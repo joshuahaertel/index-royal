@@ -4,9 +4,11 @@ from demo.views import (
     CreateDemoView, DemoView, DemoAdminView, JoinView,
 )
 
+app_name = 'demos'
+
 demo_urlpatterns = [
     path('', DemoView.as_view, name='demo'),
-    path('admin', DemoAdminView.as_view, name='admin'),
+    path('admin', DemoAdminView.as_view(), name='admin'),
 
     # path('state', DemoStateView().as_view(), name='state'),
     # path('batch', BatchView().as_view(), name='batch'),
@@ -24,7 +26,5 @@ demo_urlpatterns = [
 
 urlpatterns = [
     path('create', CreateDemoView.as_view(), name='create'),
-    path('<uuid:pk>', include(demo_urlpatterns)),
+    path('<uuid:pk>/', include(demo_urlpatterns)),
 ]
-
-app_name='demos'

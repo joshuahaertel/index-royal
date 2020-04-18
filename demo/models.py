@@ -6,7 +6,7 @@ from django.db import models
 
 class Demo(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4)
-    state = models.CharField(max_length=7, choices=(
+    state = models.CharField(max_length=7, default='wait', choices=(
         ('wait', 'Wait'),
         ('play', 'Play'),
         ('index', 'Index'),
