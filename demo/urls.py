@@ -9,6 +9,7 @@ from demo.views import (
 demo_urlpatterns = [
     path('', DemoView.as_view(), name='demo'),
     path('admin', DemoAdminView.as_view(), name='admin'),
+
     path('state', DemoStateView().as_view(), name='state'),
     path('batch', BatchView().as_view(), name='batch'),
     path('entry', EntryView().as_view(), name='entry'),

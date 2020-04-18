@@ -1,49 +1,74 @@
-from django.views import View
+from django.views.generic import DetailView, CreateView
+from rest_framework.generics import (
+    UpdateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView
+)
+
+from demo.models import Demo, Team, Player
 
 
-class CreateDemoView(View):
-    pass
+# creates admin session
+class CreateDemoView(CreateView):
+    model = Demo
+    fields = ['name']
+    context_object_name = 'demo'
 
 
-class DemoView(View):
-    pass
+# is a player
+class DemoView(DetailView):
+    model = Demo
+    context_object_name = 'demo'
 
 
-class DemoAdminView(View):
-    pass
+# is admin
+class DemoAdminView(DetailView):
+    model = Demo
+    context_object_name = 'demo'
 
 
-class DemoStateView(View):
-    pass
+# is admin
+class DemoStateView(UpdateAPIView):
+    model = Demo
+    context_object_name = 'demo'
 
 
-class BatchView(View):
-    pass
+# is admin
+class BatchView(UpdateAPIView):
+    model = Demo
+    context_object_name = 'demo'
 
 
-class EntryView(View):
-    pass
+# is admin
+class EntryView(UpdateAPIView):
+    model = Demo
+    context_object_name = 'demo'
 
 
-class FieldView(View):
-    pass
+# is admin
+class FieldView(UpdateAPIView):
+    model = Demo
+    context_object_name = 'demo'
 
 
-class TeamsView(View):
-    pass
+# is admin
+class TeamsView(ListAPIView):
+    model = Team
 
 
-class TeamView(View):
-    pass
+# is admin
+class TeamView(RetrieveUpdateDestroyAPIView):
+    model = Team
 
 
-class PlayersView(View):
-    pass
+# is admin
+class PlayersView(ListAPIView):
+    model = Player
 
 
-class PlayerView(View):
-    pass
+# is admin
+class PlayerView(RetrieveUpdateDestroyAPIView):
+    model = Player
 
 
-class JoinView(View):
-    pass
+# creates user session
+class JoinView(CreateView):
+    model = Player
