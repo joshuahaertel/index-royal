@@ -2,7 +2,7 @@ from typing import List
 from uuid import uuid4
 
 from django.db import models
-from django.db.models import Sum
+from django.db.models import Sum, Avg
 
 
 class Demo(models.Model):
@@ -40,7 +40,9 @@ class Demo(models.Model):
 
     @property
     def teams_in_winning_order(self):
-        return None
+        return self.team_set.annotate(
+            average_points=Avg('player__points')
+        ).order_by('-average_points')
 
 
 class Batch:

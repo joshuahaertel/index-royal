@@ -26,17 +26,17 @@
 </script>
 <div class="container-fluid">
     <div class="row">
-        <div id="indexing" class="col-2">
+        <div id="indexing" class="col-md-2">
             <form>
-                <label id="indexing-label">
-                    {{ demo.current_label }}
-                    <input type="text">
-                </label>
+                <div class="form-group">
+                    <label for="indexing-input" id="indexing-label">{{ demo.current_label }}</label>
+                    <input type="text" id="indexing-input" class="form-control">
+                </div>
+                <input type="submit" value="Submit" class="btn btn-primary">
             </form>
-            <input type="submit" value="Submit">
         </div>
 
-        <div class="col-8">
+        <div class="col-md-8">
             <div id="waiting" hidden>
                 Waiting for administrator to start the game
             </div>
@@ -57,11 +57,11 @@
         </div>
         </div>
 
-        <div id="scores" class="col-2">
+        <div id="scores" class="col-md-2">
             My score: <span id="my-score">{{ player.points }}</span>
-            {% for team in demo.team_set.all %}
+            {% for team in demo.teams_in_winning_order %}
                 <br>
-                Team {{ team.name }}: {{ team.points }}
+                Team {{ team.name }}: {{ team.average_points }}
             {% endfor %}
         </div>
     </div>
