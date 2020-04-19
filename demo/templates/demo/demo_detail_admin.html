@@ -23,9 +23,9 @@
     <br><br><br>
     State:
     <div class="btn-group">
-        <button class="btn btn-primary" disabled>Start Playing</button>
-        <button class="btn btn-success">Race Next Field</button>
-        <button class="btn btn-danger" disabled>Finsh Game</button>
+        <button class="btn btn-primary" {% if not demo.can_play %}disabled{% endif %}>Start Playing</button>
+        <button class="btn btn-success" {% if not demo.can_race %}disabled{% endif %}>Race Next Field</button>
+        <button class="btn btn-danger" {% if not demo.can_finish %}disabled{% endif %}>Finish Game</button>
     </div>
     <br><br>
     Teams:

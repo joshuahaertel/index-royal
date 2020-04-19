@@ -54,6 +54,18 @@ class Demo(models.Model):
         points = sum(player.points for player in self.teamless_players)
         return points/len(self.teamless_players)
 
+    @property
+    def can_play(self):
+        return self.state != 'play'
+
+    @property
+    def can_race(self):
+        return self.state == 'play'
+
+    @property
+    def can_finish(self):
+        return self.state == 'play'
+
 
 class Batch:
     def __init__(self, entries=None, images=None):
