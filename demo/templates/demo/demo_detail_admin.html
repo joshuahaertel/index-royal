@@ -23,12 +23,16 @@
     <br><br><br>
     State:
     <div class="btn-group">
-        <button class="btn btn-primary" {% if not demo.can_wait %}disabled{% endif %}>Wait</button>
-        <button class="btn btn-success" {% if not demo.can_race %}disabled{% endif %}>Race</button>
+        <button class="btn btn-primary" {% if not demo.can_wait %}disabled{% endif %}>Pause</button>
+        <button class="btn btn-success" {% if not demo.can_race %}disabled{% endif %}>Play</button>
         <button class="btn btn-danger" {% if not demo.can_finish %}disabled{% endif %}>Finish</button>
     </div>
     <br><br>
     Teams:
+    <div class="form-group">
+        <button type="button" id="team-sort-input" class="btn btn-primary">Auto-Sort Teams</button>
+        <label for="team-name-input" id="team-sort-label">reorganizes all players</label>
+    </div>
     <div class="list-group" >
         {% for team in demo.teams_in_winning_order %}
             <div class="list-group-item">
