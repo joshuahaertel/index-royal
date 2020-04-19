@@ -61,7 +61,13 @@
             My score: <span id="my-score">{{ player.points }}</span>
             {% for team in demo.teams_in_winning_order %}
                 <br>
+                {% if player.team == team %}
+                <b>
+                {% endif %}
                 Team {{ team.name }}: {{ team.average_points }}
+                {% if player.team == team %}
+                </b>
+                {% endif %}
             {% endfor %}
         </div>
     </div>

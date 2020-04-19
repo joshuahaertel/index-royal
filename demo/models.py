@@ -3,6 +3,7 @@ from uuid import uuid4
 
 from django.db import models
 from django.db.models import Sum, Avg
+from django.utils.functional import cached_property
 
 
 class Demo(models.Model):
@@ -38,11 +39,20 @@ class Demo(models.Model):
         entry = self._current_batch.entries[self.current_entry]
         return entry.fields[self.current_field].label
 
-    @property
+    @cached_property
     def teams_in_winning_order(self):
         return self.team_set.annotate(
             average_points=Avg('player__points')
         ).order_by('-average_points')
+
+    @cached_property
+    def teamless_players(self):
+        return self.player_set.filter(team=None)
+
+    @property
+    def teamless_players_average_points(self):
+        points = sum(player.points for player in self.teamless_players)
+        return points/len(self.teamless_players)
 
 
 class Batch:
@@ -84,6 +94,10 @@ class Team(models.Model):
     @property
     def points(self):
         return self.player_set.aggregate(Sum('points'))['points__sum']
+
+    @cached_property
+    def players_in_best_order(self):
+        return self.player_set.all().order_by('-points')
 
 
 class BasePlayer(models.Model):
