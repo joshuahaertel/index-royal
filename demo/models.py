@@ -13,9 +13,9 @@ class Demo(models.Model):
         ('race', 'Race'),
         ('over', 'Over'),
     ))
-    current_batch = models.PositiveSmallIntegerField(default=0)
-    current_entry = models.PositiveSmallIntegerField(default=0)
-    current_field = models.PositiveSmallIntegerField(default=0)
+    current_batch_index = models.PositiveSmallIntegerField(default=0)
+    current_entry_index = models.PositiveSmallIntegerField(default=0)
+    current_field_index = models.PositiveSmallIntegerField(default=0)
 
     def __init__(self, *args, batches=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -23,16 +23,32 @@ class Demo(models.Model):
 
     @property
     def current_images(self):
-        return self._current_batch.images
+        return self.current_batch.images
 
     @property
-    def _current_batch(self):
-        return self.batches[self.current_batch]
+    def current_batch(self):
+        return self.batches[self.current_batch_index]
+
+    @property
+    def max_batch_index(self):
+        return len(self.batches) - 1
+
+    @property
+    def current_batch_max_entry_index(self):
+        return len(self.current_batch.entries) - 1
+
+    @property
+    def current_entry_max_field_index(self):
+        return len(self.current_entry.fields) - 1
 
     @property
     def current_label(self):
-        entry = self._current_batch.entries[self.current_entry]
-        return entry.fields[self.current_field].label
+        entry = self.current_entry
+        return entry.fields[self.current_field_index].label
+
+    @property
+    def current_entry(self):
+        return self.current_batch.entries[self.current_entry_index]
 
     @cached_property
     def teams_in_winning_order(self):
@@ -66,9 +82,10 @@ class Demo(models.Model):
 
 
 class Batch:
-    def __init__(self, entries=None, images=None):
+    def __init__(self, entries=None, images=None, name=''):
         self.entries: List[Entry] = entries or []
         self.images: List[str] = images or []
+        self.name: str = name
 
 
 class Entry:
@@ -93,6 +110,7 @@ DEFAULT_BATCH = Batch(
         'demo/test-1.png',
         'demo/test-2.png',
     ],
+    name='Example',
 )
 
 

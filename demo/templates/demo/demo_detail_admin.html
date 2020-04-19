@@ -15,12 +15,43 @@
 <div class="container-fluid">
     Join URL: <a href="{{ request.scheme }}://{{ request.get_host }}/demos/{{ demo.pk }}/join" >{{ request.scheme }}://{{ request.get_host }}/demos/{{ demo.pk }}/join</a>
     <br><br><br>
-    Batch <i class="material-icons">chevron_left</i> {{ demo.current_batch }} <i class="material-icons">chevron_right</i>
+
+    Batch
+    <button class="btn btn-secondary btn-sm" {% if not demo.current_batch_index %}disabled{% endif %}>
+        <i class="material-icons" style="vertical-align: middle; font-size: 15px">chevron_left</i>
+        <span id="previous-batch"></span>
+    </button>
+    {{ demo.current_batch_index }}{% if demo.current_batch.name %}: {{ demo.current_batch.name }}{% endif %}
+    <button class="btn btn-secondary btn-sm" {% if demo.current_batch_index >= demo.max_batch_index|length %}disabled{% endif %}>
+        <i class="material-icons" style="vertical-align: middle; font-size: 15px">chevron_right</i>
+        <span id="next-batch"></span>
+    </button>
     <br>
-    Current Entry: <i class="material-icons">chevron_left</i> {{ demo.current_entry }} <i class="material-icons">chevron_right</i>
+
+    Entry
+    <button class="btn btn-secondary btn-sm" {% if not demo.current_entry_index %}disabled{% endif %}>
+        <i class="material-icons" style="vertical-align: middle; font-size: 15px">chevron_left</i>
+        <span id="previous-entry"></span>
+    </button>
+    {{ demo.current_entry_index }}
+    <button class="btn btn-secondary btn-sm" {% if demo.current_entry_index >= demo.current_batch_max_entry_index %}disabled{% endif %}>
+        <i class="material-icons" style="vertical-align: middle; font-size: 15px">chevron_right</i>
+        <span id="next-entry"></span>
+    </button>
     <br>
-    Current Field: <i class="material-icons">chevron_left</i> {{ demo.current_field }} <i class="material-icons">chevron_right</i>
+
+    Field
+    <button class="btn btn-secondary btn-sm" {% if not demo.current_field_index %}disabled{% endif %}>
+        <i class="material-icons" style="vertical-align: middle; font-size: 15px">chevron_left</i>
+        <span id="previous-field"></span>
+    </button>
+    {{ demo.current_field_index }}: {{ demo.current_label }}
+    <button class="btn btn-secondary btn-sm" {% if demo.current_field_index >= current_entry_max_field_index %}disabled{% endif %}>
+        <i class="material-icons" style="vertical-align: middle; font-size: 15px">chevron_right</i>
+        <span id="next-field"></span>
+    </button>
     <br><br><br>
+
     State:
     <div class="btn-group">
         <button class="btn btn-primary" {% if not demo.can_wait %}disabled{% endif %}>Pause</button>
@@ -34,18 +65,17 @@
         <label for="team-name-input" id="team-sort-label">reorganizes all players</label>
     </div>
     <div>
-        <!--todo db caching-->
         Total players: <span id="total-players">{{ demo.player_set.count }}</span>
     </div>
-    <span class="badge badge-primary badge-pill">Group Point Average</span>
-    <span class="badge badge-warning badge-pill">Total Group Players</span>
-    <span class="badge badge-secondary badge-pill">Individual Player's Points</span>
-    <span class="badge badge-danger badge-pill">Individual Player's Level</span>
+    <span class="badge badge-primary badge-pill">Group's Average Points</span>
+    <span class="badge badge-warning badge-pill">Group's Total Players</span>
+    <span class="badge badge-secondary badge-pill">Player's Points</span>
+    <span class="badge badge-danger badge-pill">Player's Level</span>
     <span class="badge badge-info badge-pill">Player's Team</span>
     <div class="list-group" >
         {% for team in demo.teams_in_winning_order %}
             <div class="list-group-item">
-                <i class="material-icons">delete_forever</i>
+                <i class="material-icons" style="vertical-align: middle">delete_forever</i>
                 <span class="badge badge-primary badge-pill">{{ team.average_points }}</span>
                 <span class="badge badge-warning badge-pill">{{ team.total_players }}</span>
                 <a href="#{{ team.name }}-group" data-toggle="collapse">
