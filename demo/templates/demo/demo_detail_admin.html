@@ -40,6 +40,8 @@
     <span class="badge badge-primary badge-pill">Group Point Average</span>
     <span class="badge badge-warning badge-pill">Total Group Players</span>
     <span class="badge badge-secondary badge-pill">Individual Player's Points</span>
+    <span class="badge badge-danger badge-pill">Individual Player's Level</span>
+    <span class="badge badge-info badge-pill">Player's Team</span>
     <div class="list-group" >
         {% for team in demo.teams_in_winning_order %}
             <div class="list-group-item">
@@ -53,28 +55,144 @@
                     {% if forloop.first %}
                         <div id="{{ team.name }}-group" class="list-group collapse">
                     {% endif %}
-                <a class="list-group-item">
-                    <span class="badge badge-secondary badge-pill">{{ player.points }}</span>
-                    {{ player.name }} - {{ player.skill_level }}
-                </a>
-                {% if forloop.last %}
+                    <div class="list-group-item">
+                        <span class="dropdown">
+                            <a data-toggle="dropdown">
+                                <span class="badge badge-secondary badge-pill">{{ player.points }}</span>
+                            </a>
+                            <span class="dropdown-menu">
+                                <label>
+                                    Change Points
+                                    <input type="text" class="dropdown-item form-control" value="{{ player.points }}">
+                                </label>
+                                <button class="dropdown-item btn">Submit</button>
+                            </span>
+                        </span>
+
+                        <span class="dropdown">
+                            <a data-toggle="dropdown">
+                                <span class="badge badge-danger badge-pill">{{ player.skill_level }}</span>
+                            </a>
+                            <span class="dropdown-menu">
+                                <label>
+                                    Change Level
+                                    <select name="skill_level" class="form-control">
+                                        <option value="beg" {% if player.skill_level == "beg" %}selected {% endif %}>Beginner</option>
+                                        <option value="int" {% if player.skill_level == "int" %}selected {% endif %}>Intermediate</option>
+                                        <option value="adv" {% if player.skill_level == "adv" %}selected {% endif %}>Advanced</option>
+                                    </select>
+                                </label>
+                                <button class="dropdown-item btn">Submit</button>
+                            </span>
+                        </span>
+
+                        <span class="dropdown">
+                            <a data-toggle="dropdown">
+                                <span class="badge badge-info badge-pill">{{ team.name }}</span>
+                            </a>
+                            <span class="dropdown-menu">
+                                <label>
+                                    Change Team
+                                    <select name="skill_level" class="form-control">
+                                        <option value="">None</option>
+                                        {% for team in demo.team_set.all %}
+                                            <option value="{{ team.pk }}" {% if player.team_id == team.id %}selected{% endif %}>{{ team.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </label>
+                                <button class="dropdown-item">Submit</button>
+                            </span>
+                        </span>
+
+                        <span class="dropdown">
+                            <a data-toggle="dropdown">
+                                {{ player.name }}
+                            </a>
+                            <span class="dropdown-menu">
+                                <label>
+                                    Change Name
+                                    <input type="text" class="dropdown-item form-control" maxlength="63" value="{{ player.name }}">
+                                </label>
+                                <button class="dropdown-item btn">Submit</button>
+                            </span>
+                        </span>
                     </div>
-                {% endif %}
-            {% endfor %}
+                    {% if forloop.last %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
             </div>
         {% endfor %}
         <div class="list-group-item">
-            <a href="#teamless-group" data-toggle="collapse">
                 <span class="badge badge-primary badge-pill">{{ demo.teamless_players_average_points }}</span>
                 <span class="badge badge-warning badge-pill">{{ demo.teamless_players|length }}</span>
+            <a href="#teamless-group" data-toggle="collapse">
                 Players without a team
             </a>
             <div id="teamless-group" class="list-group collapse">
                 {% for teamless_player in demo.teamless_players %}
-                    <a class="list-group-item">
-                        <span class="badge badge-secondary badge-pill">{{ teamless_player.points }}</span>
-                        {{ teamless_player.name }} - {{ teamless_player.skill_level }}
-                    </a>
+                    <div class="list-group-item">
+                        <span class="dropdown">
+                            <a data-toggle="dropdown">
+                                <span class="badge badge-secondary badge-pill">{{ teamless_player.points }}</span>
+                            </a>
+                            <span class="dropdown-menu">
+                                <label>
+                                    New Points
+                                    <input type="text" class="dropdown-item form-control" value="{{ teamless_player.points }}">
+                                </label>
+                                <button class="dropdown-item btn">Submit</button>
+                            </span>
+                        </span>
+
+                        <span class="dropdown">
+                            <a data-toggle="dropdown">
+                                <span class="badge badge-danger badge-pill">{{ teamless_player.skill_level }}</span>
+                            </a>
+                            <span class="dropdown-menu">
+                                <label>
+                                    Change Level
+                                    <select name="skill_level" class="form-control">
+                                        <option value="beg" {% if teamless_player.skill_level == "beg" %}selected {% endif %}>Beginner</option>
+                                        <option value="int" {% if teamless_player.skill_level == "int" %}selected {% endif %}>Intermediate</option>
+                                        <option value="adv" {% if teamless_player.skill_level == "adv" %}selected {% endif %}>Advanced</option>
+                                    </select>
+                                </label>
+                                <button class="dropdown-item">Submit</button>
+                            </span>
+                        </span>
+
+                        <span class="dropdown">
+                            <a data-toggle="dropdown">
+                                <span class="badge badge-info badge-pill">No Team</span>
+                            </a>
+                            <span class="dropdown-menu">
+                                <label>
+                                    Change Team
+                                    <select name="skill_level" class="form-control">
+                                        <option value="" selected>None</option>
+                                        {% for team in demo.team_set.all %}
+                                            <option value="{{ team.pk }}">{{ team.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </label>
+                                <button class="dropdown-item">Submit</button>
+                            </span>
+                        </span>
+
+                        <span class="dropdown">
+                            <a data-toggle="dropdown">
+                                {{ teamless_player.name }}
+                            </a>
+                            <span class="dropdown-menu">
+                                <label>
+                                    Change Name
+                                    <input type="text" class="dropdown-item form-control" value="{{ teamless_player.name }}">
+                                </label>
+                                <button class="dropdown-item btn">Submit</button>
+                            </span>
+                        </span>
+                    </div>
                 {% endfor %}
             </div>
         </div>

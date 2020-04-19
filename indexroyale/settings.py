@@ -25,7 +25,7 @@ SECRET_KEY = 'vntt_%fk5-+8#(cg#a1377&cxu-7=7qh&h_p6%jd(_!%b)t&tx'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
