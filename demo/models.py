@@ -51,6 +51,8 @@ class Demo(models.Model):
 
     @property
     def teamless_players_average_points(self):
+        if not self.teamless_players:
+            return 0.0
         points = sum(player.points for player in self.teamless_players)
         return points/len(self.teamless_players)
 

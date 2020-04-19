@@ -13,7 +13,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 <div class="container-fluid">
-    Join URL: <a href="{{ request.get_host }}/demos/{{ demo.pk }}/join" >{{ request.get_host }}/demos/{{ demo.pk }}/join</a>
+    Join URL: <a href="{{ request.scheme }}://{{ request.get_host }}/demos/{{ demo.pk }}/join" >{{ request.scheme }}://{{ request.get_host }}/demos/{{ demo.pk }}/join</a>
     <br><br><br>
     Batch <i class="material-icons">chevron_left</i> {{ demo.current_batch }} <i class="material-icons">chevron_right</i>
     <br>
@@ -29,59 +29,50 @@
     </div>
     <br><br>
     Teams:
-    {% if demo.teams_in_winning_order or demo.teamless_players %}
-        <div class="list-group" style="padding: 0">
-    {% endif %}
-    {% for team in demo.teams_in_winning_order %}
-        <div class="list-group-item">
-            <i class="material-icons">delete_forever</i>
-            <span class="badge badge-primary badge-pill">{{ team.average_points }}</span>
-            <a href="#{{ team.name }}-group" data-toggle="collapse">
-                {{ team.name }}
-            </a>
-            {% for player in team.players_in_best_order %}
-                {% if forloop.first %}
-                    <div id="{{ team.name }}-group" class="list-group collapse">
+    <div class="list-group" >
+        {% for team in demo.teams_in_winning_order %}
+            <div class="list-group-item">
+                <i class="material-icons">delete_forever</i>
+                <span class="badge badge-primary badge-pill">{{ team.average_points }}</span>
+                <a href="#{{ team.name }}-group" data-toggle="collapse">
+                    {{ team.name }}
+                </a>
+                {% for player in team.players_in_best_order %}
+                    {% if forloop.first %}
+                        <div id="{{ team.name }}-group" class="list-group collapse">
+                    {% endif %}
+                <a class="list-group-item">
+                    <span class="badge badge-secondary badge-pill">{{ player.points }}</span>
+                    {{ player.name }} - {{ player.skill_level }}
+                </a>
+                {% if forloop.last %}
+                    </div>
                 {% endif %}
-            <a class="list-group-item">
-                <span class="badge badge-secondary badge-pill">{{ player.points }}</span>
-                {{ player.name }} - {{ player.skill_level }}
-            </a>
-            {% if forloop.last %}
-                </div>
-            {% endif %}
+            {% endfor %}
+            </div>
         {% endfor %}
-        </div>
-    {% endfor %}
-    {% for teamless_player in demo.teamless_players %}
         <div class="list-group-item">
             <a href="#teamless-group" data-toggle="collapse">
                 <span class="badge badge-primary badge-pill">{{ demo.teamless_players_average_points }}</span>
                 Players without a team
             </a>
-        {% if forloop.first %}
             <div id="teamless-group" class="list-group collapse">
-        {% endif %}
-        <a class="list-group-item">
-            <span class="badge badge-secondary badge-pill">{{ teamless_player.points }}</span>
-            {{ teamless_player.name }} - {{ teamless_player.skill_level }}
-        </a>
-        {% if forloop.last %}
+                {% for teamless_player in demo.teamless_players %}
+                    <a class="list-group-item">
+                        <span class="badge badge-secondary badge-pill">{{ teamless_player.points }}</span>
+                        {{ teamless_player.name }} - {{ teamless_player.skill_level }}
+                    </a>
+                {% endfor %}
             </div>
-        {% endif %}
         </div>
-    {% endfor %}
-
-    {% if demo.teams_in_winning_order or demo.teamless_players %}
-        </div>
-    {% endif %}
-    <form>
+    </div>
+    <div>
         <div class="form-group">
             <label for="team-name-input" id="new-team-name-label">New Team Name</label>
             <input type="text" id="team-name-input" class="form-control">
         </div>
         <input type="submit" value="Add" class="btn btn-primary">
-    </form>
+    </div>
 </div>
 </body>
 </html>
