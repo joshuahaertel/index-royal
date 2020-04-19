@@ -33,11 +33,14 @@ class Demo(models.Model):
 
     @property
     def current_label(self):
-        print(self.state)
         if self.state in {'wait', 'over'}:
             return ()
         entry = self._current_batch.entries[self.current_entry]
         return entry.fields[self.current_field].label
+
+    @property
+    def teams_in_winning_order(self):
+        return None
 
 
 class Batch:
