@@ -10,8 +10,7 @@ class Demo(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4)
     state = models.CharField(max_length=7, default='wait', choices=(
         ('wait', 'Wait'),
-        ('play', 'Play'),
-        ('index', 'Index'),
+        ('race', 'Race'),
         ('over', 'Over'),
     ))
     current_batch = models.PositiveSmallIntegerField(default=0)
@@ -24,8 +23,6 @@ class Demo(models.Model):
 
     @property
     def current_images(self):
-        if self.state in {'wait', 'over'}:
-            return ()
         return self._current_batch.images
 
     @property
@@ -34,8 +31,6 @@ class Demo(models.Model):
 
     @property
     def current_label(self):
-        if self.state in {'wait', 'over'}:
-            return ()
         entry = self._current_batch.entries[self.current_entry]
         return entry.fields[self.current_field].label
 
@@ -57,16 +52,16 @@ class Demo(models.Model):
         return points/len(self.teamless_players)
 
     @property
-    def can_play(self):
-        return self.state != 'play'
+    def can_wait(self):
+        return self.state != 'wait'
 
     @property
     def can_race(self):
-        return self.state == 'play'
+        return self.state == 'wait'
 
     @property
     def can_finish(self):
-        return self.state == 'play'
+        return self.state == 'wait'
 
 
 class Batch:
