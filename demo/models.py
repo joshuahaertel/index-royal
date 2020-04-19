@@ -2,7 +2,7 @@ from typing import List
 from uuid import uuid4
 
 from django.db import models
-from django.db.models import Sum, Avg
+from django.db.models import Sum, Avg, Count
 from django.utils.functional import cached_property
 
 
@@ -37,7 +37,8 @@ class Demo(models.Model):
     @cached_property
     def teams_in_winning_order(self):
         return self.team_set.annotate(
-            average_points=Avg('player__points')
+            average_points=Avg('player__points'),
+            total_players=Count('player'),
         ).order_by('-average_points')
 
     @cached_property

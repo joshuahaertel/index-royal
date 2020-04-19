@@ -33,11 +33,19 @@
         <button type="button" id="team-sort-input" class="btn btn-primary">Auto-Sort Teams</button>
         <label for="team-name-input" id="team-sort-label">reorganizes all players</label>
     </div>
+    <div>
+        <!--todo db caching-->
+        Total players: <span id="total-players">{{ demo.player_set.count }}</span>
+    </div>
+    <span class="badge badge-primary badge-pill">Group Point Average</span>
+    <span class="badge badge-warning badge-pill">Total Group Players</span>
+    <span class="badge badge-secondary badge-pill">Individual Player's Points</span>
     <div class="list-group" >
         {% for team in demo.teams_in_winning_order %}
             <div class="list-group-item">
                 <i class="material-icons">delete_forever</i>
                 <span class="badge badge-primary badge-pill">{{ team.average_points }}</span>
+                <span class="badge badge-warning badge-pill">{{ team.total_players }}</span>
                 <a href="#{{ team.name }}-group" data-toggle="collapse">
                     {{ team.name }}
                 </a>
@@ -58,6 +66,7 @@
         <div class="list-group-item">
             <a href="#teamless-group" data-toggle="collapse">
                 <span class="badge badge-primary badge-pill">{{ demo.teamless_players_average_points }}</span>
+                <span class="badge badge-warning badge-pill">{{ demo.teamless_players|length }}</span>
                 Players without a team
             </a>
             <div id="teamless-group" class="list-group collapse">
