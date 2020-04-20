@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Index Game</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>-->
+<!--<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>-->
+<script>
+    var currentImage = "img-0";
+
+    function setImage(mainImage) {
+        if (mainImage === currentImage) {
+            return
+        }
+        document.getElementById(mainImage).hidden = false;
+        document.getElementById(currentImage).hidden = true;
+        currentImage = mainImage;
+    }
+
+</script>
+<div class="container-fluid">
+    <h3 class="text-center">{{ player.name }}</h3>
+    <div class="row">
+        <div id="indexing" class="col-md-2">
+            <form>
+                <div class="form-group">
+                    <label for="indexing-input" id="indexing-label">{{ demo.current_label }}</label>
+                    <input type="text" id="indexing-input" class="form-control">
+                </div>
+                <input type="submit" value="Submit" class="btn btn-primary">
+            </form>
+        </div>
+
+        <div class="col-md-8">
+            <div id="playing" class="row">
+                <div id="images" class="col-12">
+                    {% for image in demo.current_images %}
+                        <img class="img-responsive" width="100%" src="{% static image %}" {% if forloop.counter0 %}hidden{% endif %} id="img-{{ forloop.counter0 }}">
+                    {% endfor %}
+                </div>
+                <div id="thumbnails" class="col-12">
+                    {% for image in demo.current_images %}
+                        <img src="{% static image %}" width="100" onclick="setImage('img-{{ forloop.counter0 }}')">
+                    {% endfor %}
+                </div>
+            </div>
+            <div id="over" hidden>
+            Game over
+            </div>
+        </div>
+
+        <div id="scores" class="col-md-2">
+            My score: <span id="my-score">{{ player.points }}</span>
+            {% for team in demo.teams_in_winning_order %}
+                <br>
+                {% if player.team == team %}
+                <b>
+                {% endif %}
+                Team {{ team.name }}: {{ team.average_points }}
+                {% if player.team == team %}
+                </b>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+</body>
+</html>
