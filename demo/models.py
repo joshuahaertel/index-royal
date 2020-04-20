@@ -102,8 +102,8 @@ class Field:
 DEFAULT_BATCH = Batch(
     entries=[Entry(
         fields=[
-            Field('name', 'josh'),
-            Field('day', '7'),
+            Field('Name', 'josh'),
+            Field('Day', '7'),
         ]
     )],
     images=[
