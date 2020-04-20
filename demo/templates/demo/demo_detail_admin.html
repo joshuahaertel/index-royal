@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Title</title>
+    <title>Admin Panel</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 </head>
@@ -13,10 +13,13 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 <div class="container-fluid">
-    Join URL: <a href="{{ request.scheme }}://{{ request.get_host }}/demos/{{ demo.pk }}/join" >{{ request.scheme }}://{{ request.get_host }}/demos/{{ demo.pk }}/join</a>
-    <br><br><br>
+    <h1 class="text-center">Admin Panel</h1>
+    <h3>Join URL</h3> <a href="{{ request.scheme }}://{{ request.get_host }}/demos/{{ demo.pk }}/join" >{{ request.scheme }}://{{ request.get_host }}/demos/{{ demo.pk }}/join</a>
+    <hr>
 
-    Batch
+    <h3>Current Location</h3>
+    <br>
+    <h4>Batch</h4>
     <button class="btn btn-secondary btn-sm" {% if not demo.current_batch_index %}disabled{% endif %}>
         <i class="material-icons" style="vertical-align: middle; font-size: 15px">chevron_left</i>
         <span id="previous-batch"></span>
@@ -26,9 +29,9 @@
         <i class="material-icons" style="vertical-align: middle; font-size: 15px">chevron_right</i>
         <span id="next-batch"></span>
     </button>
-    <br>
+    <br><br>
 
-    Entry
+    <h4>Entry</h4>
     <button class="btn btn-secondary btn-sm" {% if not demo.current_entry_index %}disabled{% endif %}>
         <i class="material-icons" style="vertical-align: middle; font-size: 15px">chevron_left</i>
         <span id="previous-entry"></span>
@@ -38,9 +41,9 @@
         <i class="material-icons" style="vertical-align: middle; font-size: 15px">chevron_right</i>
         <span id="next-entry"></span>
     </button>
-    <br>
+    <br><br>
 
-    Field
+    <h4>Field</h4>
     <button class="btn btn-secondary btn-sm" {% if not demo.current_field_index %}disabled{% endif %}>
         <i class="material-icons" style="vertical-align: middle; font-size: 15px">chevron_left</i>
         <span id="previous-field"></span>
@@ -50,22 +53,24 @@
         <i class="material-icons" style="vertical-align: middle; font-size: 15px">chevron_right</i>
         <span id="next-field"></span>
     </button>
-    <br><br><br>
+    <hr>
 
-    State:
+    <h3>State</h3>
     <div class="btn-group">
         <button class="btn btn-primary" {% if not demo.can_wait %}disabled{% endif %}>Pause</button>
         <button class="btn btn-success" {% if not demo.can_race %}disabled{% endif %}>Play</button>
         <button class="btn btn-danger" {% if not demo.can_finish %}disabled{% endif %}>Finish</button>
     </div>
-    <br><br>
-    Teams:
+    <hr>
+
+    <h3>Teams</h3>
     <div class="form-group">
+        <h5><label for="team-name-input" id="team-sort-label">Reorganize all players</label></h5>
         <button type="button" id="team-sort-input" class="btn btn-primary">Auto-Sort Teams</button>
-        <label for="team-name-input" id="team-sort-label">reorganizes all players</label>
     </div>
+    <hr>
     <div>
-        Total players: <span id="total-players">{{ demo.player_set.count }}</span>
+        <h5>Total players: <span id="total-players">{{ demo.player_set.count }}</span></h5>
     </div>
     <span class="badge badge-primary badge-pill">Group's Average Points</span>
     <span class="badge badge-warning badge-pill">Group's Total Players</span>
@@ -101,7 +106,7 @@
 
                         <span class="dropdown">
                             <a data-toggle="dropdown">
-                                <span class="badge badge-danger badge-pill">{{ player.skill_level }}</span>
+                                <span class="badge badge-danger badge-pill">{{ player.get_skill_level_display }}</span>
                             </a>
                             <span class="dropdown-menu">
                                 <label>
@@ -123,7 +128,7 @@
                             <span class="dropdown-menu">
                                 <label>
                                     Change Team
-                                    <select name="skill_level" class="form-control">
+                                    <select name="team" class="form-control">
                                         <option value="">None</option>
                                         {% for team in demo.team_set.all %}
                                             <option value="{{ team.pk }}" {% if player.team_id == team.id %}selected{% endif %}>{{ team.name }}</option>
@@ -177,7 +182,7 @@
 
                         <span class="dropdown">
                             <a data-toggle="dropdown">
-                                <span class="badge badge-danger badge-pill">{{ teamless_player.skill_level }}</span>
+                                <span class="badge badge-danger badge-pill">{{ teamless_player.get_skill_level_display }}</span>
                             </a>
                             <span class="dropdown-menu">
                                 <label>
@@ -199,7 +204,7 @@
                             <span class="dropdown-menu">
                                 <label>
                                     Change Team
-                                    <select name="skill_level" class="form-control">
+                                    <select name="team" class="form-control">
                                         <option value="" selected>None</option>
                                         {% for team in demo.team_set.all %}
                                             <option value="{{ team.pk }}">{{ team.name }}</option>
@@ -227,6 +232,8 @@
             </div>
         </div>
     </div>
+    <hr>
+
     <div>
         <div class="form-group">
             <label for="team-name-input" id="new-team-name-label">New Team Name</label>
