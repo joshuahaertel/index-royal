@@ -8,6 +8,7 @@ from django.utils.functional import cached_property
 
 class Demo(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4)
+    admin_id = models.UUIDField(primary_key=True, default=uuid4)
     state = models.CharField(max_length=7, default='wait', choices=(
         ('wait', 'Wait'),
         ('race', 'Race'),
@@ -128,7 +129,9 @@ class Team(models.Model):
         return self.player_set.all().order_by('-points')
 
 
-class BasePlayer(models.Model):
+class Player(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid4)
+    demo = models.ForeignKey(Demo, models.CASCADE)
     points = models.SmallIntegerField(default=0)
     team = models.ForeignKey(Team, models.SET_NULL, null=True, blank=True)
     name = models.CharField(max_length=63)
@@ -137,20 +140,3 @@ class BasePlayer(models.Model):
         ('int', 'Intermediate'),
         ('adv', 'Advanced'),
     ))
-
-    class Meta:
-        abstract = True
-
-
-class Player(BasePlayer, models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid4)
-    demo = models.ForeignKey(Demo, models.CASCADE)
-
-
-class Admin(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid4)
-    demo = models.OneToOneField(Demo, models.CASCADE)
-
-
-class PlayingAdmin(Admin, BasePlayer):
-    pass

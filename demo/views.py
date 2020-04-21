@@ -1,7 +1,7 @@
 from django.http import Http404
 from django.views.generic import DetailView, CreateView
 
-from demo.models import Demo, Player, BasePlayer
+from demo.models import Demo, Player
 
 
 # creates admin session
@@ -18,7 +18,7 @@ class CreateDemoView(CreateView):
 class DemoPlayerView(DetailView):
     model = Demo
     template_name_suffix = '_detail_player'
-    player_object: BasePlayer = None
+    player_object: Player = None
 
     def get(self, request, *args, **kwargs):
         player_qs = Player.objects.filter(pk=kwargs['player_pk'])
