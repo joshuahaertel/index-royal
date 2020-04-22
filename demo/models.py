@@ -1,14 +1,17 @@
+import asyncio
+from collections import defaultdict
 from typing import List
 from uuid import uuid4
 
+import aioredis
+from asgiref.sync import async_to_sync
 from django.db import models
-from django.db.models import Sum, Avg, Count
 from django.utils.functional import cached_property
 
 
 class Demo(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4)
-    admin_id = models.UUIDField(default=uuid4)
+    admin_pk = models.UUIDField(default=uuid4)
     state = models.CharField(max_length=7, default='wait', choices=(
         ('pause', 'Pause'),
         ('play', 'Play'),
@@ -53,14 +56,56 @@ class Demo(models.Model):
 
     @cached_property
     def teams_in_winning_order(self):
-        return self.team_set.annotate(
-            average_points=Avg('player__points'),
-            total_players=Count('player'),
-        ).order_by('-average_points')
+        return async_to_sync(self.get_teams)()
+
+    async def get_teams(self):
+        REDIS_POOL = await aioredis.create_redis_pool('redis://localhost')
+        player_pks = await REDIS_POOL.smembers(f'demo.players-{self.pk}')
+        results = await asyncio.gather(*(
+            REDIS_POOL.hmget(
+                f'team-{player_pk}', 'team_name', 'points', 'name',
+                encoding='utf-8'
+            )
+            for player_pk in player_pks
+        ))
+        teams_dict = defaultdict(lambda: {
+            'points': 0,
+            'players': [],
+            'total_players': 0,
+        })
+        for player_team_name, player_points, player_name in results:
+            team = teams_dict[player_team_name]
+            team['points'] += player_points
+            team['players'].append({
+                'name': player_name,
+                'points': int(player_points),
+            })
+            team['total_players'] += 0
+        teams_list = []
+        for team_name, team_dict in teams_dict.items():
+            team_dict['name'] = team_name
+            team_dict['average_points'] = (
+                    team_dict['points'] / team_dict['total_players']
+            )
+            team_dict['players'].sort(
+                key=lambda player: (player['points'], player['name']),
+                reverse=True,
+            )
+            if not team_name:
+                self._team_less_group = team_dict
+            else:
+                teams_list.append(team_dict)
+        teams_list.sort(
+            key=lambda team_json: (
+                team_json['average_points'], team_json['name']
+            ),
+            reverse=True,
+        )
+        return teams_list
 
     @cached_property
     def teamless_players(self):
-        return self.player_set.filter(team=None)
+        return self._team_less_group
 
     @property
     def teamless_players_average_points(self):
@@ -115,28 +160,13 @@ DEFAULT_BATCH = Batch(
 )
 
 
-class Team(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid4)
-    demo = models.ForeignKey(Demo, models.CASCADE)
-    name = models.CharField(max_length=63)
-
-    @property
-    def points(self):
-        return self.player_set.aggregate(Sum('points'))['points__sum']
-
-    @cached_property
-    def players_in_best_order(self):
-        return self.player_set.all().order_by('-points')
-
-
 class Player(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4)
-    demo = models.ForeignKey(Demo, models.CASCADE)
     points = models.SmallIntegerField(default=0)
-    team = models.ForeignKey(Team, models.SET_NULL, null=True, blank=True)
     name = models.CharField(max_length=63)
     skill_level = models.CharField(default='beg', max_length=3, choices=(
         ('beg', 'Beginner'),
         ('int', 'Intermediate'),
         ('adv', 'Advanced'),
     ))
+    team = models.CharField(max_length=63)

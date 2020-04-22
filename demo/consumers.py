@@ -4,37 +4,26 @@ from time import time
 
 import aioredis
 from channels.generic.websocket import AsyncWebsocketConsumer
-from django.http import Http404
+
+from demo.models import Demo
 
 
 class TeamPointsConsumer(AsyncWebsocketConsumer):
     demo_pk: str = None
     demo_points_group_name: str = None
+    old_teams = []
 
     async def get_and_update_team_points(self):
-        REDIS_POOL = await aioredis.create_redis_pool('redis://localhost')
         start_time = time()
-        team_pks = await REDIS_POOL.smembers(f'demo.teams-{self.demo_pk}')
-        teams = {}
-        for team_pk in team_pks:  # type: bytes
-            team_name = await REDIS_POOL.hget(f'team-{team_pk}', 'name')
-            player_pks = await REDIS_POOL.smembers(
-                f'team.players-{team_pk.decode()}'
+        teams = await Demo(id=self.demo_pk).get_teams()
+        if self.old_teams != teams:
+            await self.channel_layer.group_send(
+                self.demo_points_group_name,
+                {
+                    'type': 'update.teams.points',
+                    'teams': teams,
+                }
             )
-            players_points = await asyncio.gather(
-                REDIS_POOL.hget(f'player-{player_pk}', 'points')
-                for player_pk in player_pks
-            )
-            teams[team_name] = sum(
-                int(player_points) for player_points in players_points
-            )
-        await self.channel_layer.group_send(
-            self.demo_points_group_name,
-            {
-                'type': 'update.teams.points',
-                'teams': teams,
-            }
-        )
         print(time() - start_time)
 
 
@@ -165,7 +154,7 @@ class AdminConsumer(TeamPointsConsumer):
             demo_key, 'admin_pk', 'state'
         )
         url_admin_pk = self.scope['url_route']['kwargs']['admin_pk']
-        if not state or str(url_admin_pk) != (admin_pk or b'').decode():
+        if not state or str(url_admin_pk) != admin_pk.decode():
             await self.close()
             return
         await self.channel_layer.group_add(
@@ -180,6 +169,7 @@ class AdminConsumer(TeamPointsConsumer):
         self.connected = True
         self.playing = asyncio.Event()
         if state == b'play':
+            # todo: watch demo, list and all players instead
             self.playing.set()
         asyncio.ensure_future(self.run_updates())
 
@@ -189,12 +179,12 @@ class AdminConsumer(TeamPointsConsumer):
 
     async def run_updates(self):
         while self.connected:
-            await asyncio.sleep(.5)
+            await asyncio.sleep(1)
             await self.playing.wait()
             await self.get_and_update_team_points()
 
     async def update_teams_points(self, event):
         await self.send(text_data=json.dumps({
             'type': 'update_teams_points',
-            **event
+            'teams': event['teams'],
         }))
