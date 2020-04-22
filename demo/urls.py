@@ -8,7 +8,7 @@ app_name = 'demos'
 
 demo_urlpatterns = [
     path('players/<uuid:player_pk>', DemoPlayerView.as_view(), name='demo'),
-    path('admin', DemoAdminView.as_view(), name='admin'),
+    path('admin/<uuid:admin_pk>', DemoAdminView.as_view(), name='admin'),
 
     # path('state', DemoStateView().as_view(), name='state'),
     # path('batch', BatchView().as_view(), name='batch'),
@@ -26,5 +26,5 @@ demo_urlpatterns = [
 
 urlpatterns = [
     path('create', CreateDemoView.as_view(), name='create'),
-    path('<uuid:pk>/', include(demo_urlpatterns)),
+    path('<uuid:demo_pk>/', include(demo_urlpatterns)),
 ]

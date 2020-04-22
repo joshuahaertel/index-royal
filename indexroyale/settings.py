@@ -123,3 +123,9 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 ASGI_APPLICATION = "indexroyale.routing.application"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}

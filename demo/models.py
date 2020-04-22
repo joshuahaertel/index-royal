@@ -8,10 +8,10 @@ from django.utils.functional import cached_property
 
 class Demo(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4)
-    admin_id = models.UUIDField(primary_key=True, default=uuid4)
+    admin_id = models.UUIDField(default=uuid4)
     state = models.CharField(max_length=7, default='wait', choices=(
-        ('wait', 'Wait'),
-        ('race', 'Race'),
+        ('pause', 'Pause'),
+        ('play', 'Play'),
         ('over', 'Over'),
     ))
     current_batch_index = models.PositiveSmallIntegerField(default=0)
