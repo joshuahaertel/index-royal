@@ -103,10 +103,10 @@ class DemoAdminView(DetailView):
         if not admin_pk:
             raise Http404('Invalid request: 1')
         elif admin_pk != str(self.kwargs['admin_pk']):
-            raise Http404(f'Invalid request: 2 {admin_pk} {self.kwargs["admin_pk"]}')
+            raise Http404(f'Invalid request: 2')
         return Demo(
             id=demo_pk,
-            admin_id=admin_pk,
+            admin_pk=admin_pk,
             state=state,
             current_batch_index=int(batch_index),
             current_entry_index=int(entry_index),

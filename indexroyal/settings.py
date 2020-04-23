@@ -137,7 +137,10 @@ os.makedirs(STATIC_ROOT, exist_ok=True)
 ASGI_APPLICATION = "indexroyal.routing.application"
 
 CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
-    }
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
 }

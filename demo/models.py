@@ -20,6 +20,13 @@ class Demo(models.Model):
     current_batch_index = models.PositiveSmallIntegerField(default=0)
     current_entry_index = models.PositiveSmallIntegerField(default=0)
     current_field_index = models.PositiveSmallIntegerField(default=0)
+    _team_less_group = {
+        'points': 0,
+        'total_players': 0,
+        'name': '',
+        'average_points': 0,
+        'players': [],
+    }
 
     def __init__(self, *args, batches=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -60,10 +67,12 @@ class Demo(models.Model):
 
     async def get_teams(self):
         REDIS_POOL = await aioredis.create_redis_pool('redis://localhost')
-        player_pks = await REDIS_POOL.smembers(f'demo.players-{self.pk}')
+        player_pks = await REDIS_POOL.smembers(
+            f'demo.players-{self.pk}', encoding='utf-8'
+        )
         results = await asyncio.gather(*(
             REDIS_POOL.hmget(
-                f'team-{player_pk}', 'team_name', 'points', 'name',
+                f'player-{player_pk}', 'team', 'points', 'name',
                 encoding='utf-8'
             )
             for player_pk in player_pks
@@ -75,12 +84,12 @@ class Demo(models.Model):
         })
         for player_team_name, player_points, player_name in results:
             team = teams_dict[player_team_name]
-            team['points'] += player_points
+            team['points'] += int(player_points)
             team['players'].append({
                 'name': player_name,
                 'points': int(player_points),
             })
-            team['total_players'] += 0
+            team['total_players'] += 1
         teams_list = []
         for team_name, team_dict in teams_dict.items():
             team_dict['name'] = team_name
@@ -105,26 +114,29 @@ class Demo(models.Model):
 
     @cached_property
     def teamless_players(self):
-        return self._team_less_group
+        _ = self.teams_in_winning_order
+        return [
+            Player(**kwargs) for kwargs in self._team_less_group['players']
+        ]
 
     @property
     def teamless_players_average_points(self):
         if not self.teamless_players:
             return 0.0
-        points = sum(player.points for player in self.teamless_players)
-        return points/len(self.teamless_players)
+
+        return self._team_less_group['average_points']
 
     @property
     def can_wait(self):
-        return self.state != 'wait'
+        return self.state != 'pause'
 
     @property
     def can_race(self):
-        return self.state == 'wait'
+        return self.state == 'pause'
 
     @property
     def can_finish(self):
-        return self.state == 'wait'
+        return self.state == 'pause'
 
 
 class Batch:

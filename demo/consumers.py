@@ -141,7 +141,6 @@ class AdminConsumer(TeamPointsConsumer):
     connected: bool = None
     demo_group_name: str = None
     player_group_name: str = None
-    playing: asyncio.Event = None
     updates: asyncio.Future = None
 
     async def connect(self):
@@ -167,20 +166,23 @@ class AdminConsumer(TeamPointsConsumer):
         )
         await super().connect()
         self.connected = True
-        self.playing = asyncio.Event()
-        if state == b'play':
-            # todo: watch demo, list and all players instead
-            self.playing.set()
         asyncio.ensure_future(self.run_updates())
 
     async def disconnect(self, code):
         self.connected = False
+        await self.channel_layer.group_discard(
+            self.demo_group_name,
+            self.channel_name,
+        )
+        await self.channel_layer.group_discard(
+            self.demo_points_group_name,
+            self.channel_name,
+        )
         return super().disconnect(code)
 
     async def run_updates(self):
         while self.connected:
             await asyncio.sleep(1)
-            await self.playing.wait()
             await self.get_and_update_team_points()
 
     async def update_teams_points(self, event):
