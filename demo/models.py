@@ -1,5 +1,6 @@
 import asyncio
 from collections import defaultdict
+from time import time
 from typing import List
 from uuid import uuid4
 
@@ -20,7 +21,8 @@ class Demo(models.Model):
     current_batch_index = models.PositiveSmallIntegerField(default=0)
     current_entry_index = models.PositiveSmallIntegerField(default=0)
     current_field_index = models.PositiveSmallIntegerField(default=0)
-    _team_less_group = {
+    updated_at = models.FloatField(default=time)
+    team_less_group = {
         'points': 0,
         'total_players': 0,
         'name': '',
@@ -101,7 +103,7 @@ class Demo(models.Model):
                 reverse=True,
             )
             if not team_name:
-                self._team_less_group = team_dict
+                self.team_less_group = team_dict
             else:
                 teams_list.append(team_dict)
         teams_list.sort(
@@ -116,7 +118,7 @@ class Demo(models.Model):
     def teamless_players(self):
         _ = self.teams_in_winning_order
         return [
-            Player(**kwargs) for kwargs in self._team_less_group['players']
+            Player(**kwargs) for kwargs in self.team_less_group['players']
         ]
 
     @property
@@ -124,7 +126,7 @@ class Demo(models.Model):
         if not self.teamless_players:
             return 0.0
 
-        return self._team_less_group['average_points']
+        return self.team_less_group['average_points']
 
     @property
     def can_wait(self):

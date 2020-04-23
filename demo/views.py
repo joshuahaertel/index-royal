@@ -1,4 +1,5 @@
 import asyncio
+from time import time
 from uuid import uuid4
 
 import aioredis
@@ -37,6 +38,7 @@ class CreateDemoView(CreateView):
             'current_batch_index', 0,
             'current_entry_index', 0,
             'current_field_index', 0,
+            'updated_at', time(),
         )
         expire = REDIS_POOL.expire(demo_key, 10800)
         await asyncio.gather(create, expire)
@@ -54,7 +56,7 @@ class DemoPlayerView(DetailView):
         future_player = REDIS_POOL.hgetall(
             f'player-{self.kwargs["player_pk"]}', encoding='utf-8',
         )
-        demo_pk = str(self.kwargs["demo_pk"])
+        demo_pk = str(self.kwargs['demo_pk'])
         future_demo_state = REDIS_POOL.hgetall(
             f'demo-{demo_pk}', encoding='utf-8',
         )

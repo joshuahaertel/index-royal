@@ -15,7 +15,9 @@ class TeamPointsConsumer(AsyncWebsocketConsumer):
 
     async def get_and_update_team_points(self):
         start_time = time()
-        teams = await Demo(id=self.demo_pk).get_teams()
+        demo = Demo(id=self.demo_pk)
+        teams = await demo.get_teams()
+        teams += [demo.team_less_group]
         if self.old_teams != teams:
             await self.channel_layer.group_send(
                 self.demo_points_group_name,
@@ -26,6 +28,13 @@ class TeamPointsConsumer(AsyncWebsocketConsumer):
             )
         print(time() - start_time)
 
+    async def update_teams_points(self, event):
+        self.old_teams = event['teams']
+        await self.send(text_data=json.dumps({
+            'type': 'update_teams_points',
+            'teams': self.old_teams,
+        }))
+
 
 class PlayerConsumer(TeamPointsConsumer):
     demo_group_name: str = None
@@ -33,12 +42,31 @@ class PlayerConsumer(TeamPointsConsumer):
     player_group_name: str = None
 
     async def connect(self):
-        self.demo_pk = self.scope['url_route']['kwargs']['demo_pk']
+        self.demo_pk = str(self.scope['url_route']['kwargs']['demo_pk'])
         self.demo_group_name = f'group.demo.state-{self.demo_pk}'
         self.demo_points_group_name = f'group.demo.points-{self.demo_pk}'
 
-        self.player_pk = self.scope['url_route']['kwargs']['player_pk']
+        self.player_pk = str(self.scope['url_route']['kwargs']['player_pk'])
         self.player_group_name = f'group.player-{self.player_pk}'
+
+        REDIS_POOL = await aioredis.create_redis_pool('redis://localhost')
+        future_player = REDIS_POOL.hgetall(
+            f'player-{self.player_pk}', encoding='utf-8',
+        )
+        future_demo_state = REDIS_POOL.hgetall(
+            f'demo-{self.demo_pk}', encoding='utf-8',
+        )
+        player_dict, demo_dict = await asyncio.gather(
+            future_player, future_demo_state
+        )
+        is_valid = (
+                demo_dict and
+                player_dict and
+                player_dict.pop('demo_pk') == self.demo_pk
+        )
+        if not is_valid:
+            await self.close()
+            return
 
         await self.channel_layer.group_add(
             self.demo_group_name,
@@ -74,8 +102,9 @@ class PlayerConsumer(TeamPointsConsumer):
         received_at = time()
         REDIS_POOL = await aioredis.create_redis_pool('redis://localhost')
         result = await REDIS_POOL.hmget(
-            f'demo-{self.demo_pk}', 'field_index', 'entry_index',
-            'batch_index', 'updated_at', 'state'
+            f'demo-{self.demo_pk}', 'current_field_index',
+            'current_entry_index', 'current_batch_index',
+            'updated_at', 'state',
         )
         field_index, entry_index, batch_index, updated_at, state = result
         text_data_json = json.loads(text_data)
@@ -87,11 +116,13 @@ class PlayerConsumer(TeamPointsConsumer):
                 user_entry_index == int(entry_index) and
                 user_batch_index == int(batch_index)
         )
-        if not correct_index and abs(received_at - float(updated_at)) > 3:
-            return
+        is_playing = state == b'play'
+        is_correct_state = correct_index and is_playing
+        # if not is_correct_state and abs(received_at - float(updated_at)) > 3:
+        #     return
 
         key = (
-            f'demo-field-users:'
+            f'demo.field.users-'
             f'{self.demo_pk}-'
             f'{user_batch_index}-'
             f'{user_entry_index}-'
@@ -102,12 +133,12 @@ class PlayerConsumer(TeamPointsConsumer):
         transaction.sadd(key, self.player_pk)
         transaction.expire(key, 10800)
         num_of_players, added, _ = await transaction.execute()
-        if not added:
-            return
+        # if not added:
+        #     return
         point_delta = 1 if num_of_players else 2
 
         player_key = f'player-{self.player_pk}'
-        my_points, _ = asyncio.gather(
+        my_points, _ = await asyncio.gather(
             REDIS_POOL.hincrby(player_key, 'points', point_delta),
             REDIS_POOL.expire(player_key, 10800),
         )
@@ -116,18 +147,12 @@ class PlayerConsumer(TeamPointsConsumer):
             'type': 'update_player_points',
             'points': int(my_points)
         }))
-        if state != b'play':
+        if not is_playing:
             await self.get_and_update_team_points()
 
     async def update_demo_state(self, event):
         await self.send(text_data=json.dumps({
             'type': 'update_demo_state',
-        }))
-
-    async def update_teams_points(self, event):
-        await self.send(text_data=json.dumps({
-            'type': 'update_teams_points',
-            'teams': event['teams'],
         }))
 
     async def update_player(self, event):
@@ -184,9 +209,3 @@ class AdminConsumer(TeamPointsConsumer):
         while self.connected:
             await asyncio.sleep(1)
             await self.get_and_update_team_points()
-
-    async def update_teams_points(self, event):
-        await self.send(text_data=json.dumps({
-            'type': 'update_teams_points',
-            'teams': event['teams'],
-        }))
